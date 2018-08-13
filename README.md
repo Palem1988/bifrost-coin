@@ -30,13 +30,12 @@ Bifrost Core Repository
 <tr><th>Block Height</th><th>Reward Amount</th><th>Masternodes (80%)</th><th>Stakers (20%)</th></tr>
 <tr><td>1</td><td>750,000 FROST</td><td  colspan=2>Premine</td></tr>
 <tr><td>2-200</td><td>1 FROST</td><td>n/a</td><td>PoW (Startup)</td></tr>
-<tr><td>201-525600</td><td>50 FROST</td><td>40 FROST</td><td>10 FROST</td></tr>
-
-
-
-<tr><td>525600-1051200</td><td>30 FROST</td><td>24 FROST</td><td>6 FROST</td></tr>
-<tr><td>1051200-1576800</td><td>18 FROST</td><td>14.4 FROST</td><td>3.6 FROST</td></tr>
-<tr><td>1576800-2102400</td><td>11 FROST</td><td>8.8 FROST</td><td>2.2 FROST</td></tr>
+<tr><td>201-165437</td><td>50 FROST</td><td>40 FROST</td><td>10 FROST</td></tr>
+<tr><td>165438-175437</td><td>1 FROST</td><td>0.8 FROST</td><td>0.2 FROST</td></tr>
+<tr><td>175438-185437</td><td>100 FROST</td><td>80 FROST</td><td>20 FROST</td></tr>
+<tr><td>185438-788400</td><td>10 FROST</td><td>8 FROST</td><td>2 FROST</td></tr>
+<tr><td>788401-1576800</td><td>9 FROST</td><td>7.2 FROST</td><td>1.8 FROST</td></tr>
+<tr><td>1576800-2102400</td><td>8 FROST</td><td>6.4 FROST</td><td>1.6 FROST</td></tr>
 <tr><td>2102400-2628000</td><td>6.5 FROST</td><td>5.2 FROST</td><td>1.3 FROST</td></tr>
 <tr><td>2628000-3153600</td><td>4 FROST</td><td>3.2 FROST</td><td>0.8 FROST</td></tr>
 <tr><td>3153600-3679200</td><td>2.5 FROST</td><td>2 FROST</td><td>0.5 FROST</td></tr>

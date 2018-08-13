@@ -182,7 +182,7 @@ void OverviewPage::getPercentage(CAmount nUnlockedBalance, CAmount nZerocoinBala
     }
 
     double dPercentage = 100.0 - dzPercentage;
-    
+
     szFROSTPercentage = "(" + QLocale(QLocale::system()).toString(dzPercentage, 'f', nPrecision) + " %)";
     sFROSTPercentage = "(" + QLocale(QLocale::system()).toString(dPercentage, 'f', nPrecision) + " %)";
     
@@ -208,14 +208,19 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
         nLockedBalance = pwalletMain->GetLockedCoins();
         nWatchOnlyLockedBalance = pwalletMain->GetLockedWatchOnlyBalance();
     }
+
     // FROST Balance
-    CAmount nTotalBalance = balance + unconfirmedBalance + nLockedBalance;
-    CAmount frostAvailableBalance = balance - immatureBalance;
-    CAmount nTotalWatchBalance = watchOnlyBalance + watchUnconfBalance + watchImmatureBalance;    
-    CAmount nUnlockedBalance = nTotalBalance - nLockedBalance - nLockedBalance; // increment nLockedBalance twice because it was added to
-                                                                                // nTotalBalance above
+    CAmount nTotalBalance = balance + unconfirmedBalance;
+    CAmount frostAvailableBalance = balance - immatureBalance - nLockedBalance;
+    CAmount nUnlockedBalance = nTotalBalance - nLockedBalance;
+
+    // FROST Watch-Only Balance
+    CAmount nTotalWatchBalance = watchOnlyBalance + watchUnconfBalance;
+    CAmount nAvailableWatchBalance = watchOnlyBalance - watchImmatureBalance - nWatchOnlyLockedBalance;
+
     // zFROST Balance
     CAmount matureZerocoinBalance = zerocoinBalance - unconfirmedZerocoinBalance - immatureZerocoinBalance;
+
     // Percentages
     QString szPercentage = "";
     QString sPercentage = "";
@@ -232,7 +237,7 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelTotal->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, nTotalBalance, false, BitcoinUnits::separatorAlways));
 
     // Watchonly labels
-    ui->labelWatchAvailable->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchOnlyBalance, false, BitcoinUnits::separatorAlways));
+    ui->labelWatchAvailable->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, nAvailableWatchBalance, false, BitcoinUnits::separatorAlways));
     ui->labelWatchPending->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchUnconfBalance, false, BitcoinUnits::separatorAlways));
     ui->labelWatchImmature->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, watchImmatureBalance, false, BitcoinUnits::separatorAlways));
     ui->labelWatchLocked->setText(BitcoinUnits::floorHtmlWithUnit(nDisplayUnit, nWatchOnlyLockedBalance, false, BitcoinUnits::separatorAlways));
@@ -267,30 +272,42 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     // Only show most balances if they are non-zero for the sake of simplicity
     QSettings settings;
     bool settingShowAllBalances = !settings.value("fHideZeroBalances").toBool();
+
     bool showSumAvailable = settingShowAllBalances || sumTotalBalance != availableTotalBalance;
     ui->labelBalanceTextz->setVisible(showSumAvailable);
     ui->labelBalancez->setVisible(showSumAvailable);
-    bool showFROSTAvailable = settingShowAllBalances || frostAvailableBalance != nTotalBalance;
-    bool showWatchOnlyFROSTAvailable = watchOnlyBalance != nTotalWatchBalance;
-    bool showFROSTPending = settingShowAllBalances || unconfirmedBalance != 0;
-    bool showWatchOnlyFROSTPending = watchUnconfBalance != 0;
-    bool showFROSTLocked = settingShowAllBalances || nLockedBalance != 0;
-    bool showWatchOnlyFROSTLocked = nWatchOnlyLockedBalance != 0;
-    bool showImmature = settingShowAllBalances || immatureBalance != 0;
-    bool showWatchOnlyImmature = watchImmatureBalance != 0;
+
     bool showWatchOnly = nTotalWatchBalance != 0;
-    ui->labelBalance->setVisible(showFROSTAvailable || showWatchOnlyFROSTAvailable);
+
+    // FROST Available
+    bool showFROSTAvailable = settingShowAllBalances || frostAvailableBalance != nTotalBalance;
+    bool showWatchOnlyFROSTAvailable = showFROSTAvailable || nAvailableWatchBalance != nTotalWatchBalance;
     ui->labelBalanceText->setVisible(showFROSTAvailable || showWatchOnlyFROSTAvailable);
+    ui->labelBalance->setVisible(showFROSTAvailable || showWatchOnlyFROSTAvailable);
     ui->labelWatchAvailable->setVisible(showFROSTAvailable && showWatchOnly);
-    ui->labelUnconfirmed->setVisible(showFROSTPending || showWatchOnlyFROSTPending);
+
+    // FROST Pending
+    bool showFROSTPending = settingShowAllBalances || unconfirmedBalance != 0;
+    bool showWatchOnlyFROSTPending = showFROSTPending || watchUnconfBalance != 0;
     ui->labelPendingText->setVisible(showFROSTPending || showWatchOnlyFROSTPending);
+    ui->labelUnconfirmed->setVisible(showFROSTPending || showWatchOnlyFROSTPending);
     ui->labelWatchPending->setVisible(showFROSTPending && showWatchOnly);
-    ui->labelLockedBalance->setVisible(showFROSTLocked || showWatchOnlyFROSTLocked);
-    ui->labelLockedBalanceText->setVisible(showFROSTLocked || showWatchOnlyFROSTLocked);
-    ui->labelWatchLocked->setVisible(showFROSTLocked && showWatchOnly);
-    ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature); // for symmetry reasons also show immature label when the watch-only one is shown
+
+    // FROST Immature
+    bool showImmature = settingShowAllBalances || immatureBalance != 0;
+    bool showWatchOnlyImmature = showImmature || watchImmatureBalance != 0;
     ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
-    ui->labelWatchImmature->setVisible(showImmature && showWatchOnly); // show watch-only immature balance
+    ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature); // for symmetry reasons also show immature label when the watch-only one is shown
+    ui->labelWatchImmature->setVisible(showWatchOnlyImmature && showWatchOnly); // show watch-only immature balance
+
+    // FROST Locked
+    bool showFROSTLocked = settingShowAllBalances || nLockedBalance != 0;
+    bool showWatchOnlyFROSTLocked = showFROSTLocked || nWatchOnlyLockedBalance != 0;
+    ui->labelLockedBalanceText->setVisible(showFROSTLocked || showWatchOnlyFROSTLocked);
+    ui->labelLockedBalance->setVisible(showFROSTLocked || showWatchOnlyFROSTLocked);
+    ui->labelWatchLocked->setVisible(showFROSTLocked && showWatchOnly);
+
+    // zFROST
     bool showzFROSTAvailable = settingShowAllBalances || zerocoinBalance != matureZerocoinBalance;
     bool showzFROSTUnconfirmed = settingShowAllBalances || unconfirmedZerocoinBalance != 0;
     bool showzFROSTImmature = settingShowAllBalances || immatureZerocoinBalance != 0;
@@ -300,6 +317,8 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelzBalanceUnconfirmedText->setVisible(showzFROSTUnconfirmed);
     ui->labelzBalanceImmature->setVisible(showzFROSTImmature);
     ui->labelzBalanceImmatureText->setVisible(showzFROSTImmature);
+
+    // Percent split
     bool showPercentages = ! (zerocoinBalance == 0 && nTotalBalance == 0);
     ui->labelFROSTPercent->setVisible(showPercentages);
     ui->labelzFROSTPercent->setVisible(showPercentages);

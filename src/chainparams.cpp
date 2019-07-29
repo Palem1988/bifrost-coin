@@ -66,7 +66,9 @@ static Checkpoints::MapCheckpoints mapCheckpoints =
     (120290, uint256("0xe6fbbf7e0df5c271eab87e05060c6bb4c13a97f0cb9299dbe824a119855f028f"))
     (140000, uint256("0xa7dc9c64e7b7902288c3fa82614edf09e70349f96e2aa71ade15343f15e61e04"))
     (165440, uint256("0xeac04567483851d28843e3b235fc09694758a2d29e929e63add5f1baaae82109")) // Following fork
-    (169300, uint256("0xd0bbbc3530be25a6324e3e94be931fc0e225f97ce95b9f804aff0f6d7e14286b"));
+    (169300, uint256("0xd0bbbc3530be25a6324e3e94be931fc0e225f97ce95b9f804aff0f6d7e14286b"))
+    (665475, uint256("0x701b2173af5cc262ec05043adf7e14ebca0d94e09bc6bbd0d4f0e40ac0914b62")) // Following ZeroCoin fork
+    (665700, uint256("0xcf3b8075b24a6a4ba6e5ee3da638740656d73c9ff87caa00433f8f56d654c382"));
 
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
@@ -161,7 +163,7 @@ public:
         nBlockLastGoodCheckpoint = nWalletForkBlock; //Last valid accumulator checkpoint
         nBlockEnforceInvalidUTXO = nWalletForkBlock; //Start enforcing the invalid UTXO's and staking rewards
         nInvalidAmountFiltered = 0*COIN; //Amount of invalid coins filtered through exchanges, that should be considered valid
-        nBlockZerocoinV2 = nWalletForkBlock + 500000; //!> The block that zerocoin v2 becomes active - roughly Tuesday, May 8, 2018 4:00:00 AM GMT
+        nBlockZerocoinV2 = nWalletForkBlock + 900000; //!> The block that zerocoin v2 becomes active
         nEnforceNewSporkKey = 1632109087; //!> Sporks signed after (GMT): Tuesday, May 1, 2018 7:00:00 AM GMT must use the new spork key
         nRejectOldSporkKey = 1632109087; //!> Fully reject old spork key after (GMT): Friday, June 1, 2018 12:00:00 AM
 
